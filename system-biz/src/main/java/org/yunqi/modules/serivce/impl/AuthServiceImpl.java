@@ -36,7 +36,8 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public Result loginByPhoneAndPwd(LoginBO loginBO) {
         // AuthenticationManager 进行认证
-        UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(loginBO.getPhone(), loginBO.getPassword());
+        UsernamePasswordAuthenticationToken authenticationToken =
+                new UsernamePasswordAuthenticationToken(loginBO.getPhone(), loginBO.getPassword());
         Authentication authenticate = authenticationManager.authenticate(authenticationToken);
         // 认证未通过，给出提示
         if (Objects.isNull(authenticate)) {
@@ -62,8 +63,10 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public Result logOut() {
         // 获取SecurityContextHolder的username
-        UsernamePasswordAuthenticationToken authentication = (UsernamePasswordAuthenticationToken) SecurityContextHolder.getContext().getAuthentication();
-        LoginUser loginUser = (LoginUser) authentication.getPrincipal();
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        log.info("auth:{}", authentication);
+        UsernamePasswordAuthenticationToken authenticationToken = (UsernamePasswordAuthenticationToken) authentication;
+        LoginUser loginUser = (LoginUser) authenticationToken.getPrincipal();
         String username = loginUser.getUser().getUsername();
         // 删除redis中的值
         redisUtil.del("LOGIN:APP:" + username);

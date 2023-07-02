@@ -7,6 +7,8 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 @Slf4j
@@ -24,9 +26,13 @@ public class SecurityUserDetailService implements UserDetailsService {
             throw new RuntimeException("用户名或密码错误");
         }
         //todo 查询权限信息
-
+        List<String> roles = new ArrayList<>();
+        if (securityUserInfo.getUsername().equals("18205718305")) {
+            roles.add("test");
+        } else {
+            roles.add("admin");
+        }
         //todo 封装UserDetail对象
-
-        return new LoginUser(securityUserInfo);
+        return new LoginUser(securityUserInfo, roles);
     }
 }

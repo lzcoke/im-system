@@ -2,6 +2,7 @@ package org.yunqi.common.config.jwt;
 
 import com.alibaba.fastjson.JSON;
 import io.jsonwebtoken.Claims;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -19,12 +20,15 @@ import java.io.IOException;
 import java.util.Objects;
 
 import org.yunqi.common.config.security.LoginUser;
+import org.yunqi.common.exception.ErrorEnum;
+import org.yunqi.common.exception.ServiceException;
 import org.yunqi.comon.utils.redis.RedisUtil;
 
 /**
  * jwt过滤器
  */
 @Component
+@Slf4j
 public class JwtFilter extends OncePerRequestFilter {
     @Autowired
     private JwtUtils jwtUtils;
@@ -32,7 +36,8 @@ public class JwtFilter extends OncePerRequestFilter {
     private RedisUtil redisUtil;
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
+                                    FilterChain filterChain) throws ServletException, IOException {
         // 获取token
         String token = request.getHeader("token");
         if (!StringUtils.hasText(token)) {
@@ -47,16 +52,17 @@ public class JwtFilter extends OncePerRequestFilter {
             username = claims.getSubject();
         } catch (Exception e) {
             e.printStackTrace();
-            throw new RuntimeException("token非法");
+            throw new ServiceException(ErrorEnum.UNAUTHORIZED);
         }
         // redis中获取用户信息
         Object redisString = redisUtil.get("LOGIN:APP:" + username);
-        LoginUser loginUser = JSON.parseObject(redisString.toString(), LoginUser.class);
-        if (Objects.isNull(loginUser)) {
-            throw new RuntimeException("用户未登录");
+        if (Objects.isNull(redisString)) {
+            throw new ServiceException(ErrorEnum.USER_IS_NULL);
         }
+        LoginUser loginUser = JSON.parseObject(redisString.toString(), LoginUser.class);
         // 存入SecurityContextHolder
-        UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(loginUser, null, null);
+        UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(loginUser,
+                null, loginUser.getAuthorities());
         SecurityContextHolder.getContext().setAuthentication(authenticationToken);
         filterChain.doFilter(request, response);
     }
