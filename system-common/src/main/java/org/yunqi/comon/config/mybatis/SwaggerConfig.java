@@ -32,9 +32,9 @@ public class SwaggerConfig {
                 .apiInfo(builderApiInfo())
                 .select()
                 // 扫描所有带有 @ApiOperation 注解的类
-                .apis(RequestHandlerSelectors.withMethodAnnotation(ApiOperation.class))
+//                .apis(RequestHandlerSelectors.withMethodAnnotation(ApiOperation.class))
                 // 扫描所有的 controller
-                // .apis(RequestHandlerSelectors.basePackage("org.springcrm.*.controller"))
+                 .apis(RequestHandlerSelectors.basePackage("org.yunqi.admin.controller"))
                 .paths(PathSelectors.any())
                 .build();
     }
@@ -42,15 +42,15 @@ public class SwaggerConfig {
     @Bean
     public Docket docket2() {
         return new Docket(DocumentationType.OAS_30)
-                .groupName("web")
+                .groupName("app")
                 .securityContexts(securityContexts())
                 .securitySchemes(securitySchemes())
                 .apiInfo(builderApiInfo())
                 .select()
                 // 扫描所有带有 @ApiOperation 注解的类
-                .apis(RequestHandlerSelectors.withMethodAnnotation(ApiOperation.class))
+//                .apis(RequestHandlerSelectors.withMethodAnnotation(ApiOperation.class))
                 // 扫描所有的 controller
-                // .apis(RequestHandlerSelectors.basePackage("org.springcrm.*.controller"))
+                 .apis(RequestHandlerSelectors.basePackage("org.yunqi.app.controller"))
                 .paths(PathSelectors.any())
                 .build();
     }

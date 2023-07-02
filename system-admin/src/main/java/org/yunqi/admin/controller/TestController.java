@@ -1,4 +1,4 @@
-package org.yunqi.controller;
+package org.yunqi.admin.controller;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
